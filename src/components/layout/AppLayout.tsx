@@ -1,27 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuthDev';
-import Navigation from './Navigation';
-import Dashboard from '@/components/dashboard/Dashboard';
-import ActivityForm from '@/components/forms/ActivityForm';
-import TipsPanel from '@/components/tips/TipsPanel';
-import GoalsPanel from '@/components/gamification/GoalsPanel';
-import BadgeDisplay from '@/components/gamification/BadgeDisplay';
-import { ActivityInput } from '@/types';
-import { calculateCarbonFootprint } from '@/lib/calculations/carbonFootprint';
-import { saveCarbonFootprint, saveActivity } from '@/lib/firebase/firestore';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuthDev";
+import Navigation from "./Navigation";
+import Dashboard from "@/components/dashboard/Dashboard";
+import ActivityForm from "@/components/forms/ActivityForm";
+import TipsPanel from "@/components/tips/TipsPanel";
+import GoalsPanel from "@/components/gamification/GoalsPanel";
+import BadgeDisplay from "@/components/gamification/BadgeDisplay";
+import { ActivityInput } from "@/types";
+import { calculateCarbonFootprint } from "@/lib/calculations/carbonFootprint";
+import { saveCarbonFootprint, saveActivity } from "@/lib/firebase/firestore";
+import { ShortcutsModal } from "../ui/ShortcutsModal";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
-type PageType = 'dashboard' | 'activities' | 'tips' | 'goals' | 'badges';
+type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
 
 export default function AppLayout() {
   const { user } = useAuth();
-  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
+  const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [todayFootprint, setTodayFootprint] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [activityHistory, setActivityHistory] = useState<any[]>([]);
+  const [showShortcutsModal, setShowShortcutsModal] = useState<boolean>(false);
+
+  //keyboard hook
+  useKeyboardShortcuts({setCurrentPage});
 
   useEffect(() => {
     // Load today's footprint when component mounts
@@ -33,7 +39,7 @@ export default function AppLayout() {
     // For now, we'll use a placeholder
     const baseFootprint = 850; // Base daily footprint
     setTodayFootprint(baseFootprint);
-    
+
     // Initialize dashboard with sample data
     const initialDashboard = {
       todayFootprint: baseFootprint,
@@ -49,48 +55,63 @@ export default function AppLayout() {
         social_media: 120,
       },
       trend: [
-        { date: 'Mon', co2: 800 },
-        { date: 'Tue', co2: 920 },
-        { date: 'Wed', co2: 750 },
-        { date: 'Thu', co2: 880 },
-        { date: 'Fri', co2: 1100 },
-        { date: 'Sat', co2: 650 },
-        { date: 'Today', co2: baseFootprint },
+        { date: "Mon", co2: 800 },
+        { date: "Tue", co2: 920 },
+        { date: "Wed", co2: 750 },
+        { date: "Thu", co2: 880 },
+        { date: "Fri", co2: 1100 },
+        { date: "Sat", co2: 650 },
+        { date: "Today", co2: baseFootprint },
       ],
       equivalents: [
-        { description: 'driving 2.1 km in a car', value: 2.1, unit: 'km_driving' },
-        { description: 'charging your phone 103 times', value: 103, unit: 'phone_charges' },
-        { description: 'boiling 40 cups of tea', value: 40, unit: 'tea_cups' },
+        {
+          description: "driving 2.1 km in a car",
+          value: 2.1,
+          unit: "km_driving",
+        },
+        {
+          description: "charging your phone 103 times",
+          value: 103,
+          unit: "phone_charges",
+        },
+        { description: "boiling 40 cups of tea", value: 40, unit: "tea_cups" },
       ],
     };
     setDashboardData(initialDashboard);
   };
 
-  const handleActivitySubmit = async (activities: ActivityInput, result: { totalCO2: number; breakdown: Record<string, number>; equivalents: Array<{ description: string; value: number; unit: string }> }) => {
+  const handleActivitySubmit = async (
+    activities: ActivityInput,
+    result: {
+      totalCO2: number;
+      breakdown: Record<string, number>;
+      equivalents: Array<{ description: string; value: number; unit: string }>;
+    }
+  ) => {
     if (!user) return;
 
     setIsLoading(true);
-    
+
     try {
       // Optimized: Update UI immediately for better UX
       const newTodayFootprint = todayFootprint + result.totalCO2;
       setTodayFootprint(newTodayFootprint);
-      
+
       // Update dashboard data in real-time
       setDashboardData((prev: any) => {
         if (!prev) return prev;
-        
+
         // Update today's footprint in trend
-        const updatedTrend = prev.trend.map((day: any) => 
-          day.date === 'Today' ? { ...day, co2: newTodayFootprint } : day
+        const updatedTrend = prev.trend.map((day: any) =>
+          day.date === "Today" ? { ...day, co2: newTodayFootprint } : day
         );
-        
+
         // Update weekly breakdown by adding new activities
         const updatedBreakdown = { ...prev.weeklyBreakdown };
         Object.entries(result.breakdown).forEach(([activity, co2]) => {
           updatedBreakdown[activity] = (updatedBreakdown[activity] || 0) + co2;
         });
-        
+
         return {
           ...prev,
           todayFootprint: newTodayFootprint,
@@ -101,21 +122,27 @@ export default function AppLayout() {
           equivalents: result.equivalents,
         };
       });
-      
+
       // Add to activity history
-      setActivityHistory(prev => [...prev, { 
-        activities, 
-        result, 
-        timestamp: new Date(),
-        id: Date.now().toString()
-      }]);
-      
-      setCurrentPage('dashboard');
-      
+      setActivityHistory((prev) => [
+        ...prev,
+        {
+          activities,
+          result,
+          timestamp: new Date(),
+          id: Date.now().toString(),
+        },
+      ]);
+
+      setCurrentPage("dashboard");
+
       // In development mode, simulate saving with shorter delay
-      if (process.env.NODE_ENV === 'development') {
-        await new Promise(resolve => setTimeout(resolve, 800)); // Faster development save
-        console.log('Demo: Activities saved successfully', { activities, result });
+      if (process.env.NODE_ENV === "development") {
+        await new Promise((resolve) => setTimeout(resolve, 800)); // Faster development save
+        console.log("Demo: Activities saved successfully", {
+          activities,
+          result,
+        });
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
         return;
@@ -123,7 +150,7 @@ export default function AppLayout() {
 
       // Production: Batch all database operations
       const savePromises = [];
-      
+
       // Save activities in parallel
       Object.entries(activities).forEach(([activityType, value]) => {
         if (value > 0) {
@@ -152,12 +179,11 @@ export default function AppLayout() {
       await Promise.all(savePromises);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      
     } catch (error) {
-      console.error('Error saving activities:', error);
+      console.error("Error saving activities:", error);
       // Rollback UI changes on error
-      setTodayFootprint(prev => prev - result.totalCO2);
-      alert('Failed to save activities. Please try again.');
+      setTodayFootprint((prev) => prev - result.totalCO2);
+      alert("Failed to save activities. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -168,38 +194,44 @@ export default function AppLayout() {
 
     try {
       // This would save the goal to the database
-      console.log('Setting goal:', targetReduction);
-      
+      console.log("Setting goal:", targetReduction);
+
       // For now, just show success
       alert(`Goal set! Target: ${targetReduction}% reduction`);
     } catch (error) {
-      console.error('Error setting goal:', error);
+      console.error("Error setting goal:", error);
       throw error;
     }
   };
 
   const renderCurrentPage = () => {
     switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard dashboardData={dashboardData} activityHistory={activityHistory} onNavigate={setCurrentPage} />;
-      
-      case 'activities':
+      case "dashboard":
+        return (
+          <Dashboard
+            dashboardData={dashboardData}
+            activityHistory={activityHistory}
+            onNavigate={setCurrentPage}
+          />
+        );
+
+      case "activities":
         return (
           <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
-              <ActivityForm 
+              <ActivityForm
                 onSubmit={handleActivitySubmit}
                 initialValues={{}}
               />
             </div>
           </div>
         );
-      
-      case 'tips':
+
+      case "tips":
         return (
           <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
-              <TipsPanel 
+              <TipsPanel
                 userFootprint={{
                   emails: 200,
                   streaming: 150,
@@ -213,8 +245,8 @@ export default function AppLayout() {
             </div>
           </div>
         );
-      
-      case 'goals':
+
+      case "goals":
         return (
           <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
@@ -226,28 +258,28 @@ export default function AppLayout() {
             </div>
           </div>
         );
-      
-      case 'badges':
+
+      case "badges":
         return (
           <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <BadgeDisplay
                 userBadges={[
                   {
-                    id: 'first-steps',
-                    name: 'First Steps',
-                    description: 'Completed your first day of tracking',
-                    icon: '👶',
-                    requirement: 'milestone: 1',
+                    id: "first-steps",
+                    name: "First Steps",
+                    description: "Completed your first day of tracking",
+                    icon: "👶",
+                    requirement: "milestone: 1",
                     achieved: true,
                     achievedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
                   },
                   {
-                    id: 'eco-warrior',
-                    name: 'Eco Warrior',
-                    description: 'Reduced weekly footprint by 25%',
-                    icon: '🌿',
-                    requirement: 'total_reduction: 25',
+                    id: "eco-warrior",
+                    name: "Eco Warrior",
+                    description: "Reduced weekly footprint by 25%",
+                    icon: "🌿",
+                    requirement: "total_reduction: 25",
                     achieved: true,
                     achievedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
                   },
@@ -257,7 +289,7 @@ export default function AppLayout() {
             </div>
           </div>
         );
-      
+
       default:
         return <Dashboard />;
     }
@@ -274,10 +306,8 @@ export default function AppLayout() {
         onPageChange={setCurrentPage}
         todayFootprint={todayFootprint}
       />
-      
-      <main className="lg:ml-64">
-        {renderCurrentPage()}
-      </main>
+
+      <main className="lg:ml-64">{renderCurrentPage()}</main>
 
       {/* Optimized Loading Overlay */}
       {isLoading && (
@@ -286,7 +316,10 @@ export default function AppLayout() {
             <div className="spinner-eco w-10 h-10 mx-auto mb-3"></div>
             <p className="text-gray-700 font-medium">Saving activities...</p>
             <div className="mt-2 w-32 h-1 bg-gray-200 rounded-full mx-auto">
-              <div className="h-1 bg-green-500 rounded-full animate-pulse" style={{ width: '70%' }}></div>
+              <div
+                className="h-1 bg-green-500 rounded-full animate-pulse"
+                style={{ width: "70%" }}
+              ></div>
             </div>
           </div>
         </div>
@@ -301,9 +334,21 @@ export default function AppLayout() {
           </div>
         </div>
       )}
-      
+
       {/* Mobile spacing for bottom navigation */}
       <div className="h-16 lg:hidden"></div>
+
+      <ShortcutsModal
+        isOpen={showShortcutsModal}
+        onClose={() => setShowShortcutsModal(false)}
+      />
+      <button
+        onClick={() => setShowShortcutsModal(true)}
+        className="fixed bottom-4 right-4 bg-[#489d63] text-white p-3 rounded-full shadow-lg hover:bg-[#e3fdee] transition cursor-pointer"
+        aria-label="Keyboard shortcuts"
+      >
+        ⌨️
+      </button>
     </div>
   );
 }
