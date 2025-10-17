@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Carbon Tracker - Digital Footprint Monitor",
-  description: "Track your digital carbon footprint and make a positive environmental impact",
+  description:
+    "Track your digital carbon footprint and make a positive environmental impact",
 };
 
 export default function RootLayout({
@@ -28,9 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProviderDev>
-          {children}
-        </AuthProviderDev>
+        <AuthProviderDev>{children}</AuthProviderDev>
       </body>
     </html>
   );
