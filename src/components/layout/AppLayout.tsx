@@ -27,7 +27,7 @@ export default function AppLayout() {
   const [showShortcutsModal, setShowShortcutsModal] = useState<boolean>(false);
 
   //keyboard hook
-  useKeyboardShortcuts({setCurrentPage});
+  useKeyboardShortcuts({ setCurrentPage });
 
   useEffect(() => {
     // Load today's footprint when component mounts
@@ -270,7 +270,10 @@ export default function AppLayout() {
                     name: "First Steps",
                     description: "Completed your first day of tracking",
                     icon: "👶",
-                    requirement: "milestone: 1",
+                    requirement: {
+                      type: "milestone",
+                      threshold: 1,
+                    },
                     achieved: true,
                     achievedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
                   },
@@ -279,7 +282,11 @@ export default function AppLayout() {
                     name: "Eco Warrior",
                     description: "Reduced weekly footprint by 25%",
                     icon: "🌿",
-                    requirement: "total_reduction: 25",
+                    requirement: {
+                      type: "total_reduction",
+                      threshold: 25,
+                      period: "weekly",
+                    },
                     achieved: true,
                     achievedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
                   },
