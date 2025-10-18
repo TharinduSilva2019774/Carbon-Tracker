@@ -38,12 +38,24 @@ export default function ConfirmDialog({
                 e.preventDefault();
                 onConfirm();
             } else if (e.key === 'Tab') {
-                e.preventDefault();
-                const activeElement = document.activeElement;
-                if (activeElement === confirmButtonRef.current) {
-                    cancelButtonRef.current?.focus();
+                if (!dialogRef.current) return;
+
+                const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+
+                if (e.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement?.focus();
+                    }
                 } else {
-                    confirmButtonRef.current?.focus();
+                    if (document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement?.focus();
+                    }
                 }
             }
         };
@@ -76,7 +88,7 @@ export default function ConfirmDialog({
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center"
-            role="dialog"
+            role={isDanger ? 'alertdialog' : 'dialog'}
             aria-modal="true"
             aria-labelledby="dialog-title"
             aria-describedby="dialog-description"
