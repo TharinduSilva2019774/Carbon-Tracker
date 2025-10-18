@@ -15,6 +15,9 @@ import { ShortcutsModal } from "../ui/ShortcutsModal";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
+type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact"; 
+
+const LOCAL_STORAGE_KEY = "activitySortPreference";
 
 export default function AppLayout() {
   const { user } = useAuth();
@@ -25,14 +28,46 @@ export default function AppLayout() {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [activityHistory, setActivityHistory] = useState<any[]>([]);
   const [showShortcutsModal, setShowShortcutsModal] = useState<boolean>(false);
+  const [sortPreference, setSortPreference] = useState<SortOption>("newest");
 
   //keyboard hook
   useKeyboardShortcuts({setCurrentPage});
 
   useEffect(() => {
+    const savedSort = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedSort && ['newest', 'oldest', 'highest_impact', 'lowest_impact'].includes(savedSort)) {
+      setSortPreference(savedSort as SortOption);
+    }
     // Load today's footprint when component mounts
     loadTodayFootprint();
   }, [user]);
+
+  const handleSortChange = (newSort: SortOption) => {
+    setSortPreference(newSort);
+    localStorage.setItem(LOCAL_STORAGE_KEY, newSort);
+  };
+
+  const getSortedActivityHistory = () => {
+    // We create a shallow copy to ensure we don't mutate the original state
+    const sortedList = [...activityHistory];
+
+    switch (sortPreference) {
+      case "newest":
+        // Sort descending by timestamp
+        return sortedList.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+      case "oldest":
+        // Sort ascending by timestamp
+        return sortedList.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      case "highest_impact":
+        // Impact is based on totalCO2, so sort descending
+        return sortedList.sort((a, b) => b.result.totalCO2 - a.result.totalCO2);
+      case "lowest_impact":
+        // Impact is based on totalCO2, so sort ascending
+        return sortedList.sort((a, b) => a.result.totalCO2 - b.result.totalCO2);
+      default:
+        return sortedList.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()); // Default to newest
+    }
+  };
 
   const loadTodayFootprint = async () => {
     // This would fetch today's footprint from the database
@@ -210,7 +245,9 @@ export default function AppLayout() {
         return (
           <Dashboard
             dashboardData={dashboardData}
-            activityHistory={activityHistory}
+            activityHistory={getSortedActivityHistory()}
+            sortPreference={sortPreference}
+            onSortChange={handleSortChange}
             onNavigate={setCurrentPage}
           />
         );

@@ -11,6 +11,15 @@ import FootprintChart from "@/components/charts/FootprintChart";
 import ComparisonSection from "@/components/dashboard/ComparisonSection";
 import { getUserFootprints } from "@/lib/firebase/firestore";
 
+type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact";
+
+const SORT_OPTIONS: Record<SortOption, string> = {
+  newest: "Newest First (Time ⬇️)",
+  oldest: "Oldest First (Time ⬆️)",
+  highest_impact: "Highest Impact (CO2 ⬇️)",
+  lowest_impact: "Lowest Impact (CO2 ⬆️)",
+};
+
 interface StatCardProps {
   title: string;
   value: string;
@@ -71,12 +80,16 @@ interface DashboardProps {
   dashboardData?: any;
   activityHistory?: any[];
   onNavigate?: (page: string) => void;
+  sortPreference: SortOption;
+  onSortChange: (sort: SortOption) => void;
 }
 
 export default function Dashboard({
   dashboardData: propDashboardData,
   activityHistory = [],
   onNavigate,
+  sortPreference,
+  onSortChange,
 }: DashboardProps) {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
@@ -300,41 +313,64 @@ export default function Dashboard({
           </div>
         )}
 
-        {/* Recent Activities */}
+        {/* Recent Activities / Activity History (UPDATED SECTION) */}
         {activityHistory.length > 0 && (
           <div className="bg-white rounded-xl shadow-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-              Recent Activities
-            </h3>
-            <div className="space-y-4">
-              {activityHistory
-                .slice(-3)
-                .reverse()
-                .map((entry) => (
-                  <div key={entry.id} className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">
-                        {entry.timestamp.toLocaleTimeString()}
-                      </span>
-                      <span className="font-bold text-green-600">
-                        +{formatCO2Amount(entry.result.totalCO2)}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(entry.activities).map(
-                        ([activity, value]) =>
-                          (value as number) > 0 ? (
-                            <span
-                              key={activity}
-                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-                            >
-                              {activity}: {value as number}
-                            </span>
-                          ) : null
-                      )}
-                    </div>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">
+                Activity History
+              </h3>
+              {/* NEW: Sort Dropdown UI */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                <div className="relative">
+                  <select
+                    value={sortPreference}
+                    onChange={(e) => onSortChange(e.target.value as SortOption)}
+                    className="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 transition-shadow"
+                  >
+                    {Object.entries(SORT_OPTIONS).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom chevron/sort icon */}
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h18M3 8h18m-6 4h6m-6 4h6M3 16h6m-6 4h6"></path></svg>
                   </div>
-                ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Sorted Activity List */}
+            <div className="space-y-4">
+              {activityHistory.map((entry: any) => (
+                <div key={entry.id} className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">
+                      {/* Using toLocaleString for better date/time display */}
+                      {entry.timestamp.toLocaleString()}
+                    </span>
+                    <span className="font-bold text-green-600">
+                      +{formatCO2Amount(entry.result.totalCO2)}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(entry.activities).map(
+                      ([activity, value]) =>
+                        (value as number) > 0 ? (
+                          <span
+                            key={activity}
+                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+                          >
+                            {activity}: {value as number}
+                          </span>
+                        ) : null
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
