@@ -66,10 +66,12 @@ function EquivalentCard({ description, icon }: EquivalentCardProps) {
   );
 }
 
+type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
+
 interface DashboardProps {
   dashboardData?: any;
   activityHistory?: any[];
-  onNavigate?: (page: string) => void;
+  onNavigate: (page: PageType) => void;
 }
 
 export default function Dashboard({
