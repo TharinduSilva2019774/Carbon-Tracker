@@ -8,6 +8,7 @@ import {
   calculateEquivalents,
 } from "@/lib/calculations/carbonFootprint";
 import FootprintChart from "@/components/charts/FootprintChart";
+import ComparisonSection from "@/components/dashboard/ComparisonSection";
 import { getUserFootprints } from "@/lib/firebase/firestore";
 
 interface StatCardProps {
@@ -255,6 +256,9 @@ export default function Dashboard({
             color="text-purple-600"
           />
         </div>
+
+        {/* Comparison Section */}
+        <ComparisonSection dashboardData={dashboardData} />
 
         {/* Charts Section */}
         <div className="grid lg:grid-cols-2 gap-6">
