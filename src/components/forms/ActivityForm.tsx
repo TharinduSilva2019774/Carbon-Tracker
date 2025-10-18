@@ -6,7 +6,15 @@ import { calculateCarbonFootprint } from '@/lib/calculations/carbonFootprint';
 import { ACTIVITY_LABELS, ACTIVITY_DESCRIPTIONS } from '@/constants/co2Factors';
 
 interface ActivityFormProps {
-  onSubmit: (activities: ActivityInput, result: { totalCO2: number; breakdown: Record<string, number>; equivalents: Array<{ description: string; value: number; unit: string }> }) => void;
+  onSubmit: (
+    activities: ActivityInput,
+    result: {
+      totalCO2: number;
+      breakdown: Record<string, number>;
+      equivalents: Array<{ description: string; value: number; unit: string }>;
+    },
+    customToastMessage?: string // <-- Add this optional property
+  ) => void;
   initialValues?: Partial<ActivityInput>;
 }
 
