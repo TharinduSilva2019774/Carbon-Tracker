@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuthDev";
 import Navigation from "./Navigation";
@@ -13,6 +14,7 @@ import { calculateCarbonFootprint } from "@/lib/calculations/carbonFootprint";
 import { saveCarbonFootprint, saveActivity } from "@/lib/firebase/firestore";
 import { ShortcutsModal } from "../ui/ShortcutsModal";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import QuickActionsFAB from "@/components/ui/QuickActionsFAB";
 
 type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
 
@@ -20,6 +22,7 @@ export default function AppLayout() {
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [todayFootprint, setTodayFootprint] = useState(0);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -86,7 +89,8 @@ export default function AppLayout() {
       totalCO2: number;
       breakdown: Record<string, number>;
       equivalents: Array<{ description: string; value: number; unit: string }>;
-    }
+    },
+    customToastMessage?: string
   ) => {
     if (!user) return;
 
@@ -143,8 +147,8 @@ export default function AppLayout() {
           activities,
           result,
         });
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
+        setSuccessToast(customToastMessage || "Activities saved successfully!");
+        setTimeout(() => setSuccessToast(null), 3000);
         return;
       }
 
@@ -177,8 +181,8 @@ export default function AppLayout() {
 
       // Execute all saves in parallel
       await Promise.all(savePromises);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setSuccessToast(customToastMessage || "Activities saved successfully!");
+      setTimeout(() => setSuccessToast(null), 3000);
     } catch (error) {
       console.error("Error saving activities:", error);
       // Rollback UI changes on error
@@ -291,7 +295,11 @@ export default function AppLayout() {
         );
 
       default:
-        return <Dashboard />;
+        return (<Dashboard
+          dashboardData={dashboardData}
+          activityHistory={activityHistory}
+          onNavigate={setCurrentPage}
+        />);
     }
   };
 
@@ -300,6 +308,8 @@ export default function AppLayout() {
   }
 
   return (
+    
+
     <div className="min-h-screen bg-gray-50">
       <Navigation
         currentPage={currentPage}
@@ -326,11 +336,11 @@ export default function AppLayout() {
       )}
 
       {/* Success Toast */}
-      {showSuccess && (
+      {successToast && (
         <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse">
           <div className="flex items-center space-x-2">
             <span className="text-lg">✅</span>
-            <span className="font-medium">Activities saved successfully!</span>
+            <span className="font-medium">{successToast}</span>
           </div>
         </div>
       )}
@@ -338,13 +348,15 @@ export default function AppLayout() {
       {/* Mobile spacing for bottom navigation */}
       <div className="h-16 lg:hidden"></div>
 
+      <QuickActionsFAB onSubmit={handleActivitySubmit} />
+
       <ShortcutsModal
         isOpen={showShortcutsModal}
         onClose={() => setShowShortcutsModal(false)}
       />
       <button
         onClick={() => setShowShortcutsModal(true)}
-        className="fixed bottom-4 right-4 bg-[#489d63] text-white p-3 rounded-full shadow-lg hover:bg-[#e3fdee] transition cursor-pointer"
+        className="fixed bottom-4 right-4 bg-[#489d63] text-white p-3 rounded-full shadow-lg hover:bg-[#e3fdee] transition cursor-pointer z-30"
         aria-label="Keyboard shortcuts"
       >
         ⌨️
