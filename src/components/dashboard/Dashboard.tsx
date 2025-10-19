@@ -9,7 +9,10 @@ import {
 } from "@/lib/calculations/carbonFootprint";
 import FootprintChart from "@/components/charts/FootprintChart";
 import ComparisonSection from "@/components/dashboard/ComparisonSection";
+import ShareButton from "@/components/ui/ShareButton";
 import { getUserFootprints } from "@/lib/firebase/firestore";
+import { exportToCSV, ActivityHistoryEntry } from "@/utils/exportCSV";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact";
 
@@ -37,13 +40,12 @@ function StatCard({ title, value, change, icon, color }: StatCardProps) {
           <p className={`text-2xl font-bold ${color}`}>{value}</p>
           {change !== undefined && (
             <p
-              className={`text-sm mt-1 ${
-                change > 0
+              className={`text-sm mt-1 ${change > 0
                   ? "text-red-600"
                   : change < 0
-                  ? "text-green-600"
-                  : "text-gray-600"
-              }`}
+                    ? "text-green-600"
+                    : "text-gray-600"
+                }`}
             >
               {change > 0 ? "↗" : change < 0 ? "↘" : "→"}{" "}
               {Math.abs(change).toFixed(1)}% from last week
@@ -98,6 +100,11 @@ export default function Dashboard({
     null
   );
   const [loading, setLoading] = useState(true);
+  const [exportStatus, setExportStatus] = useState<{
+    show: boolean;
+    success: boolean;
+    message: string;
+  }>({ show: false, success: false, message: '' });
 
   useEffect(() => {
     // Use prop data if available, otherwise fetch from database
@@ -205,6 +212,21 @@ export default function Dashboard({
     }
   }, [propDashboardData]);
 
+  // Handle CSV export
+  const handleExportCSV = () => {
+    const result = exportToCSV(activityHistory as ActivityHistoryEntry[]);
+    setExportStatus({
+      show: true,
+      success: result.success,
+      message: result.message
+    });
+    
+    // Hide the message after 4 seconds
+    setTimeout(() => {
+      setExportStatus(prev => ({ ...prev, show: false }));
+    }, 4000);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -248,6 +270,13 @@ export default function Dashboard({
           <p className="text-gray-600">
             Track your digital footprint and make a positive impact 🌍
           </p>
+          {/* Share Button */}
+          <div className="mt-4 flex justify-center">
+            <ShareButton
+              co2Amount={dashboardData.todayFootprint}
+              period="today"
+            />
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -382,7 +411,7 @@ export default function Dashboard({
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Quick Actions
           </h3>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button
               onClick={() => onNavigate?.("activities")}
               className="flex items-center justify-center space-x-2 p-4 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-all duration-200 hover:scale-105 hover:shadow-md"
@@ -404,9 +433,34 @@ export default function Dashboard({
               <span className="text-2xl">💡</span>
               <span className="font-bold text-gray-800">Get Tips</span>
             </button>
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center justify-center space-x-2 p-4 border-2 border-orange-200 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-all duration-200 hover:scale-105 hover:shadow-md"
+            >
+              <ArrowDownTrayIcon className="w-6 h-6 text-orange-600" />
+              <span className="font-bold text-gray-800">Export Data</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Export Status Toast */}
+      {exportStatus.show && (
+        <div className="fixed top-4 right-4 z-50">
+          <div
+            className={`px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 ${
+              exportStatus.success
+                ? 'bg-green-500 text-white'
+                : 'bg-red-500 text-white'
+            }`}
+          >
+            <span className="text-lg">
+              {exportStatus.success ? '✅' : '❌'}
+            </span>
+            <span className="font-medium">{exportStatus.message}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
