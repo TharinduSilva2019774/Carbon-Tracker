@@ -88,7 +88,7 @@ interface DashboardProps {
   onNavigate: (page: PageType) => void;
   sortPreference: SortOption;
   onSortChange: (sort: SortOption) => void;
-  onDeleteActivity: (id:string, dateString: string, activities: any) => void;
+  onDeleteActivity: (id:string, dateString: string, activities: any, totalCO2: number) => void;
 }
 
 export default function Dashboard({
@@ -229,7 +229,7 @@ export default function Dashboard({
 
     try {
       if (onDeleteActivity) {
-        await onDeleteActivity(toDeleteEntry.id, toDeleteEntry.timestamp.toString(), toDeleteEntry.activities);
+        await onDeleteActivity(toDeleteEntry.id, toDeleteEntry.timestamp.toString(), toDeleteEntry.activities, toDeleteEntry.result.totalCO2);
       } else {
         // fallback: try direct firestore helper
         await deleteActivitys?.(toDeleteEntry.id);

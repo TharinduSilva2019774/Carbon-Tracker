@@ -55,8 +55,13 @@ export default function AppLayout() {
     id:string, 
     dateString: string, 
     activities: any,
-    customToastMessage?: string ) => {
-    
+    totalCO2: number,
+    customToastMessage?: string
+     ) => {
+
+      const newTodayFootprint = todayFootprint - totalCO2;
+      setTodayFootprint(newTodayFootprint);
+
     // In development mode, simulate saving with shorter delay
     if (process.env.NODE_ENV === "development") {
       setActivityHistory((prev) => prev.filter((activity) => activity.id !== id));
@@ -87,6 +92,7 @@ export default function AppLayout() {
         setTimeout(() => setSuccessToast(null), 3000);
       }
     }catch(error){
+      setTodayFootprint((prev) => prev + totalCO2);
       setFailToast(customToastMessage || "An error occurred while deleting activity.");
       setTimeout(() => setFailToast(null), 3000);
     }
