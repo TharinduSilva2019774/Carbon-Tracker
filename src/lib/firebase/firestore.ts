@@ -59,7 +59,6 @@ export const deleteActivitys = async (args: {
   activityType: string;
 }) => {
   const { rawDateString, userId, activityType} = args;
-  console.log("Deleting activity for user:", userId, "with date string:", rawDateString);
   // convert incoming date string back into Timestamp to match stored data
   const date =new Date(rawDateString);
   const start = Timestamp.fromDate(new Date(date)); // start time
@@ -79,7 +78,10 @@ export const deleteActivitys = async (args: {
   const deletes = snap.docs.map(doc => deleteDoc(doc.ref));
   await Promise.all(deletes);
 
-  console.log(`Deleted ${deletes.length} matching activity docs`);
+  if (deletes.length === 0) {
+    console.error("No matching activity found in DB to delete.");
+    throw new Error("No matching activity found to delete.");
+  }
 };
 
 export const getUserActivities = async (userId: string, days: number = 30): Promise<Activity[]> => {

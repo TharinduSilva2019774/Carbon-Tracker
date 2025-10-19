@@ -51,24 +51,41 @@ export default function AppLayout() {
     localStorage.setItem(LOCAL_STORAGE_KEY, newSort);
   };
 
-  const handleDeleteActivity = (
+  const handleDeleteActivity = async (
     id:string, 
     dateString: string, 
     activities: any,
     customToastMessage?: string ) => {
-    setActivityHistory((prev) => prev.filter((activity) => activity.id !== id));
+    
+    // In development mode, simulate saving with shorter delay
+    if (process.env.NODE_ENV === "development") {
+      setActivityHistory((prev) => prev.filter((activity) => activity.id !== id));
+      setSuccessToast(customToastMessage || "Activities saved successfully!");
+      setTimeout(() => setSuccessToast(null), 3000);
+      return;
+    }
 
     try{
       // Loop through activities and delete each from Firestore
-      activities && Object.entries(activities).forEach(([activityType, value]) => {
-        if (value as number> 0) {
-          deleteActivitys({
-          rawDateString: dateString,
-          userId: user!.id, 
-          activityType: activityType})
-      }});
-      setSuccessToast(customToastMessage || "Activity deleted successfully!");
-      setTimeout(() => setSuccessToast(null), 3000);
+      if (activities) {
+        const deletionPromises = Object.entries(activities)
+          .filter(([_, value]) => value as number > 0)
+          .map(([activityType, _]) => 
+            deleteActivitys({
+              rawDateString: dateString,
+              userId: user!.id,
+              activityType: activityType
+            })
+          );
+
+        // Wait for all deletions to finish
+        await Promise.all(deletionPromises);
+
+        // Now update state and show toast
+        setActivityHistory((prev) => prev.filter((activity) => activity.id !== id));
+        setSuccessToast(customToastMessage || "Activity deleted successfully!");
+        setTimeout(() => setSuccessToast(null), 3000);
+      }
     }catch(error){
       setFailToast(customToastMessage || "An error occurred while deleting activity.");
       setTimeout(() => setFailToast(null), 3000);
@@ -199,17 +216,13 @@ export default function AppLayout() {
 
       setCurrentPage("dashboard");
 
-      // // In development mode, simulate saving with shorter delay
-      // if (process.env.NODE_ENV === "development") {
-      //   await new Promise((resolve) => setTimeout(resolve, 800)); // Faster development save
-      //   console.log("Demo: Activities saved successfully", {
-      //     activities,
-      //     result,
-      //   });
-      //   setSuccessToast(customToastMessage || "Activities saved successfully!");
-      //   setTimeout(() => setSuccessToast(null), 3000);
-      //   return;
-      // }
+      // In development mode, simulate saving with shorter delay
+      if (process.env.NODE_ENV === "development") {
+        await new Promise((resolve) => setTimeout(resolve, 800)); // Faster development save
+        setSuccessToast(customToastMessage || "Activities saved successfully!");
+        setTimeout(() => setSuccessToast(null), 3000);
+        return;
+      }
 
       // Production: Batch all database operations
       const savePromises = [];

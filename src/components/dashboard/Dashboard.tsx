@@ -104,7 +104,6 @@ export default function Dashboard({
   const [loading, setLoading] = useState(true);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toDeleteEntry, setToDeleteEntry] = useState<any | null>(null);
-  const [localHistory, setLocalHistory] = useState<any[]>(activityHistory || []);
 
   useEffect(() => {
     // Use prop data if available, otherwise fetch from database
@@ -221,9 +220,6 @@ export default function Dashboard({
     if (!toDeleteEntry) return;
     setConfirmOpen(false);
 
-    // Optimistically remove from local list
-    setLocalHistory((prev) => prev.filter((e) => e.id !== toDeleteEntry.id));
-
     try {
       if (onDeleteActivity) {
         await onDeleteActivity(toDeleteEntry.id, toDeleteEntry.timestamp.toString(), toDeleteEntry.activities);
@@ -233,8 +229,6 @@ export default function Dashboard({
       }
     } catch (err) {
       console.error("Error deleting activity", err);
-      // rollback optimistic update on error
-      setLocalHistory((prev) => [toDeleteEntry, ...prev]);
     } finally {
       setToDeleteEntry(null);
     }
