@@ -11,6 +11,8 @@ import FootprintChart from "@/components/charts/FootprintChart";
 import ComparisonSection from "@/components/dashboard/ComparisonSection";
 import ShareButton from "@/components/ui/ShareButton";
 import { getUserFootprints } from "@/lib/firebase/firestore";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
+import { deleteActivitys } from "@/lib/firebase/firestore";
 import { exportToCSV, ActivityHistoryEntry } from "@/utils/exportCSV";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
@@ -86,6 +88,7 @@ interface DashboardProps {
   onNavigate: (page: PageType) => void;
   sortPreference: SortOption;
   onSortChange: (sort: SortOption) => void;
+  onDeleteActivity: (id:string, dateString: string, activities: any) => void;
 }
 
 export default function Dashboard({
@@ -94,12 +97,15 @@ export default function Dashboard({
   onNavigate,
   sortPreference,
   onSortChange,
+  onDeleteActivity
 }: DashboardProps) {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
   const [loading, setLoading] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [toDeleteEntry, setToDeleteEntry] = useState<any | null>(null);
   const [exportStatus, setExportStatus] = useState<{
     show: boolean;
     success: boolean;
@@ -212,6 +218,33 @@ export default function Dashboard({
     }
   }, [propDashboardData]);
 
+  const handleDeleteClick = (entry: any) => {
+    setToDeleteEntry(entry);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!toDeleteEntry) return;
+    setConfirmOpen(false);
+
+    try {
+      if (onDeleteActivity) {
+        await onDeleteActivity(toDeleteEntry.id, toDeleteEntry.timestamp.toString(), toDeleteEntry.activities);
+      } else {
+        // fallback: try direct firestore helper
+        await deleteActivitys?.(toDeleteEntry.id);
+      }
+    } catch (err) {
+      console.error("Error deleting activity", err);
+    } finally {
+      setToDeleteEntry(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmOpen(false);
+    setToDeleteEntry(null);
+  }
   // Handle CSV export
   const handleExportCSV = () => {
     const result = exportToCSV(activityHistory as ActivityHistoryEntry[]);
@@ -387,21 +420,42 @@ export default function Dashboard({
                       +{formatCO2Amount(entry.result.totalCO2)}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(entry.activities).map(
-                      ([activity, value]) =>
-                        (value as number) > 0 ? (
-                          <span
-                            key={activity}
-                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-                          >
-                            {activity}: {value as number}
-                          </span>
-                        ) : null
-                    )}
+
+                  <div className="flex items-end justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(entry.activities).map(
+                        ([activity, value]) =>
+                          (value as number) > 0 ? (
+                            <span
+                              key={activity}
+                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+                            >
+                              {activity}: {value as number}
+                            </span>
+                          ) : null
+                      )}
+                    </div>
+
+                    {/* delete icon */}
+                    <button
+                      onClick={() => {handleDeleteClick(entry);}}
+                      type="button"
+                      className="ml-4 text-sm text-red-600 bg-red-50 px-2 py-1 rounded-md select-none cursor-pointer z-50"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
               ))}
+              <DeleteConfirmDialog
+                open={confirmOpen}
+                title="Delete activity"
+                message="Delete this activity? This action cannot be undone."
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+              />
             </div>
           </div>
         )}
