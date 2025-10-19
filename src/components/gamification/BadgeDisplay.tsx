@@ -10,7 +10,7 @@ import {
 } from "@/constants/badges";
 import Tooltip from "../ui/TooltTip";
 import clsx from "clsx";
-import ShareButton from '@/components/ui/ShareButton';
+import ShareButton from "@/components/ui/ShareButton";
 
 interface BadgeDisplayProps {
   userBadges: Badge[];
@@ -31,9 +31,15 @@ function BadgeCard({ badge, isEarned, onClick }: BadgeCardProps) {
 
   return (
     <Tooltip
-      className={clsx("max-w-[200px]!", badge.achievedAt ? "hidden!" : "")}
+      className={clsx(
+        "max-w-[200px]! scale-90! md:scale-100!",
+        badge.achievedAt ? "hidden!" : ""
+      )}
+      mobileIconClassName={clsx("ml-2 mt-2", badge.achievedAt ? "hidden!" : "")}
+      mobileIconPlacement="top-left"
+      mobileShowInfoIcon={true}
       content={
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 ">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -195,7 +201,6 @@ export default function BadgeDisplay({
           </p>
         </div>
 
-
         <div className="text-right">
           <div className="text-2xl font-bold text-green-600">{earnedCount}</div>
           <div className="text-sm text-gray-500">badges</div>
@@ -227,7 +232,7 @@ export default function BadgeDisplay({
             <input
               type="checkbox"
               checked={showAll}
-              onChange={() => { }} // This would be controlled by parent
+              onChange={() => {}} // This would be controlled by parent
               className="rounded"
             />
             <span>Show locked badges</span>
@@ -278,7 +283,10 @@ export default function BadgeDisplay({
                 <div className="text-center">
                   <div className="inline-flex items-center space-x-2 bg-green-100 text-green-700 px-4 py-2 rounded-full">
                     <span>✅</span>
-                    <span>Achieved on {selectedBadge.achievedAt?.toLocaleDateString()}</span>
+                    <span>
+                      Achieved on{" "}
+                      {selectedBadge.achievedAt?.toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
 
@@ -290,7 +298,6 @@ export default function BadgeDisplay({
                   />
                 </div>
               </div>
-              
             ) : (
               <div className="text-center">
                 <div className="inline-flex items-center space-x-2 bg-gray-100 text-gray-600 px-4 py-2 rounded-full">
@@ -299,7 +306,6 @@ export default function BadgeDisplay({
                 </div>
               </div>
             )}
-
 
             <button
               onClick={() => setSelectedBadge(null)}
