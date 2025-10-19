@@ -11,7 +11,7 @@ import GoalsPanel from "@/components/gamification/GoalsPanel";
 import BadgeDisplay from "@/components/gamification/BadgeDisplay";
 import { ActivityInput } from "@/types";
 import { calculateCarbonFootprint } from "@/lib/calculations/carbonFootprint";
-import { saveCarbonFootprint, saveActivity } from "@/lib/firebase/firestore";
+import { saveCarbonFootprint, saveActivity, deleteActivitys } from "@/lib/firebase/firestore";
 import { ShortcutsModal } from "../ui/ShortcutsModal";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import QuickActionsFAB from "@/components/ui/QuickActionsFAB";
@@ -26,6 +26,7 @@ export default function AppLayout() {
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [todayFootprint, setTodayFootprint] = useState(0);
   const [successToast, setSuccessToast] = useState<string | null>(null);
+  const [failToast, setFailToast] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -50,6 +51,29 @@ export default function AppLayout() {
     localStorage.setItem(LOCAL_STORAGE_KEY, newSort);
   };
 
+  const handleDeleteActivity = (
+    id:string, 
+    dateString: string, 
+    activities: any,
+    customToastMessage?: string ) => {
+    setActivityHistory((prev) => prev.filter((activity) => activity.id !== id));
+
+    try{
+      // Loop through activities and delete each from Firestore
+      activities && Object.entries(activities).forEach(([activityType, value]) => {
+        if (value as number> 0) {
+          deleteActivitys({
+          rawDateString: dateString,
+          userId: user!.id, 
+          activityType: activityType})
+      }});
+      setSuccessToast(customToastMessage || "Activity deleted successfully!");
+      setTimeout(() => setSuccessToast(null), 3000);
+    }catch(error){
+      setFailToast(customToastMessage || "An error occurred while deleting activity.");
+      setTimeout(() => setFailToast(null), 3000);
+    }
+  }
   const getSortedActivityHistory = () => {
     // We create a shallow copy to ensure we don't mutate the original state
     const sortedList = [...activityHistory];
@@ -175,17 +199,17 @@ export default function AppLayout() {
 
       setCurrentPage("dashboard");
 
-      // In development mode, simulate saving with shorter delay
-      if (process.env.NODE_ENV === "development") {
-        await new Promise((resolve) => setTimeout(resolve, 800)); // Faster development save
-        console.log("Demo: Activities saved successfully", {
-          activities,
-          result,
-        });
-        setSuccessToast(customToastMessage || "Activities saved successfully!");
-        setTimeout(() => setSuccessToast(null), 3000);
-        return;
-      }
+      // // In development mode, simulate saving with shorter delay
+      // if (process.env.NODE_ENV === "development") {
+      //   await new Promise((resolve) => setTimeout(resolve, 800)); // Faster development save
+      //   console.log("Demo: Activities saved successfully", {
+      //     activities,
+      //     result,
+      //   });
+      //   setSuccessToast(customToastMessage || "Activities saved successfully!");
+      //   setTimeout(() => setSuccessToast(null), 3000);
+      //   return;
+      // }
 
       // Production: Batch all database operations
       const savePromises = [];
@@ -253,6 +277,7 @@ export default function AppLayout() {
             sortPreference={sortPreference}
             onSortChange={handleSortChange}
             onNavigate={setCurrentPage}
+            onDeleteActivity={handleDeleteActivity}
           />
         );
 
@@ -382,6 +407,15 @@ export default function AppLayout() {
         </div>
       )}
 
+      {/* Failed Toast */}
+      {failToast && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse">
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">❌</span>
+            <span className="font-medium">{failToast}</span>
+          </div>
+        </div>
+      )}
       {/* Mobile spacing for bottom navigation */}
       <div className="h-16 lg:hidden"></div>
 

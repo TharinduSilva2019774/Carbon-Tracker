@@ -53,6 +53,35 @@ export const saveActivity = async (activity: Omit<Activity, 'id'>) => {
   });
 };
 
+export const deleteActivitys = async (args: {
+  rawDateString: string;
+  userId: string;
+  activityType: string;
+}) => {
+  const { rawDateString, userId, activityType} = args;
+  console.log("Deleting activity for user:", userId, "with date string:", rawDateString);
+  // convert incoming date string back into Timestamp to match stored data
+  const date =new Date(rawDateString);
+  const start = Timestamp.fromDate(new Date(date)); // start time
+  const end = Timestamp.fromDate(new Date(date.getTime() + 1000)); // +1 second window
+
+  // Query for matching documents (change this in the future if an unique  is implemented)
+  const q = query(
+    collection(db, "activities"),
+    where("date", ">=", start),
+    where("date", "<", end),
+    where("type", "==", activityType),
+    where("userId", "==", userId)
+  );
+
+  const snap = await getDocs(q);
+
+  const deletes = snap.docs.map(doc => deleteDoc(doc.ref));
+  await Promise.all(deletes);
+
+  console.log(`Deleted ${deletes.length} matching activity docs`);
+};
+
 export const getUserActivities = async (userId: string, days: number = 30): Promise<Activity[]> => {
   const activitiesRef = collection(db, 'activities');
   const startDate = new Date();
@@ -76,6 +105,7 @@ export const getUserActivities = async (userId: string, days: number = 30): Prom
 // Carbon footprint operations
 export const saveCarbonFootprint = async (footprint: Omit<CarbonFootprint, 'id'>) => {
   const footprintsRef = collection(db, 'carbon_footprints');
+  console.log('Saving footprint:', footprint);
   await addDoc(footprintsRef, {
     ...footprint,
     date: Timestamp.fromDate(footprint.date),

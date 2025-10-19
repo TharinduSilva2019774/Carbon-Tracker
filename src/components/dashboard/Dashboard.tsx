@@ -84,6 +84,7 @@ interface DashboardProps {
   onNavigate: (page: PageType) => void;
   sortPreference: SortOption;
   onSortChange: (sort: SortOption) => void;
+  onDeleteActivity: (id:string, dateString: string, activities: any) => void;
 }
 
 export default function Dashboard({
@@ -92,6 +93,7 @@ export default function Dashboard({
   onNavigate,
   sortPreference,
   onSortChange,
+  onDeleteActivity
 }: DashboardProps) {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
@@ -204,6 +206,18 @@ export default function Dashboard({
       setDashboardData(propDashboardData);
     }
   }, [propDashboardData]);
+
+  const handleDeleteActivity = async (entry : any) => {
+    const confirmed = window.confirm("Delete this activity? This cannot be undone.");
+   if (!confirmed) return;
+   console.log("Deleting activity with id:", entry);
+   try {
+     await onDeleteActivity(entry.id, entry.timestamp.toString(), entry.activities);
+   } catch (err) {
+     console.error('Error deleting activity', err);
+     // optionally show UI error
+   }
+  };
 
   if (loading) {
     return (
@@ -358,18 +372,29 @@ export default function Dashboard({
                       +{formatCO2Amount(entry.result.totalCO2)}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(entry.activities).map(
-                      ([activity, value]) =>
-                        (value as number) > 0 ? (
-                          <span
-                            key={activity}
-                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-                          >
-                            {activity}: {value as number}
-                          </span>
-                        ) : null
-                    )}
+
+                  <div className="flex items-end justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(entry.activities).map(
+                        ([activity, value]) =>
+                          (value as number) > 0 ? (
+                            <span
+                              key={activity}
+                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+                            >
+                              {activity}: {value as number}
+                            </span>
+                          ) : null
+                      )}
+                    </div>
+
+                    {/* delete icon */}
+                    <button
+                      onClick={() => {handleDeleteActivity(entry);}}
+                      className="ml-4 text-sm text-red-600 bg-red-50 px-2 py-1 rounded-md select-none cursor-pointer z-50"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
               ))}
