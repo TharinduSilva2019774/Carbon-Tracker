@@ -10,6 +10,8 @@ import {
 import FootprintChart from "@/components/charts/FootprintChart";
 import ComparisonSection from "@/components/dashboard/ComparisonSection";
 import { getUserFootprints } from "@/lib/firebase/firestore";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { deleteActivitys } from "@/lib/firebase/firestore";
 
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact";
 
@@ -100,6 +102,9 @@ export default function Dashboard({
     null
   );
   const [loading, setLoading] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [toDeleteEntry, setToDeleteEntry] = useState<any | null>(null);
+  const [localHistory, setLocalHistory] = useState<any[]>(activityHistory || []);
 
   useEffect(() => {
     // Use prop data if available, otherwise fetch from database
@@ -207,16 +212,37 @@ export default function Dashboard({
     }
   }, [propDashboardData]);
 
-  const handleDeleteActivity = async (entry : any) => {
-    const confirmed = window.confirm("Delete this activity? This cannot be undone.");
-   if (!confirmed) return;
-   console.log("Deleting activity with id:", entry);
-   try {
-     await onDeleteActivity(entry.id, entry.timestamp.toString(), entry.activities);
-   } catch (err) {
-     console.error('Error deleting activity', err);
-     // optionally show UI error
-   }
+  const handleDeleteClick = (entry: any) => {
+    setToDeleteEntry(entry);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!toDeleteEntry) return;
+    setConfirmOpen(false);
+
+    // Optimistically remove from local list
+    setLocalHistory((prev) => prev.filter((e) => e.id !== toDeleteEntry.id));
+
+    try {
+      if (onDeleteActivity) {
+        await onDeleteActivity(toDeleteEntry.id, toDeleteEntry.timestamp.toString(), toDeleteEntry.activities);
+      } else {
+        // fallback: try direct firestore helper
+        await deleteActivitys?.(toDeleteEntry.id);
+      }
+    } catch (err) {
+      console.error("Error deleting activity", err);
+      // rollback optimistic update on error
+      setLocalHistory((prev) => [toDeleteEntry, ...prev]);
+    } finally {
+      setToDeleteEntry(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmOpen(false);
+    setToDeleteEntry(null);
   };
 
   if (loading) {
@@ -390,7 +416,8 @@ export default function Dashboard({
 
                     {/* delete icon */}
                     <button
-                      onClick={() => {handleDeleteActivity(entry);}}
+                      onClick={() => {handleDeleteClick(entry);}}
+                      type="button"
                       className="ml-4 text-sm text-red-600 bg-red-50 px-2 py-1 rounded-md select-none cursor-pointer z-50"
                     >
                       🗑️
@@ -398,6 +425,15 @@ export default function Dashboard({
                   </div>
                 </div>
               ))}
+              <ConfirmDialog
+                open={confirmOpen}
+                title="Delete activity"
+                message="Delete this activity? This action cannot be undone."
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+              />
             </div>
           </div>
         )}
