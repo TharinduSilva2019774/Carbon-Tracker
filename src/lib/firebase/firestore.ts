@@ -107,7 +107,6 @@ export const getUserActivities = async (userId: string, days: number = 30): Prom
 // Carbon footprint operations
 export const saveCarbonFootprint = async (footprint: Omit<CarbonFootprint, 'id'>) => {
   const footprintsRef = collection(db, 'carbon_footprints');
-  console.log('Saving footprint:', footprint);
   await addDoc(footprintsRef, {
     ...footprint,
     date: Timestamp.fromDate(footprint.date),

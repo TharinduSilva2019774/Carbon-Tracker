@@ -219,6 +219,10 @@ export default function AppLayout() {
       // In development mode, simulate saving with shorter delay
       if (process.env.NODE_ENV === "development") {
         await new Promise((resolve) => setTimeout(resolve, 800)); // Faster development save
+        console.log("Demo: Activities saved successfully", {
+          activities,
+          result,
+        });
         setSuccessToast(customToastMessage || "Activities saved successfully!");
         setTimeout(() => setSuccessToast(null), 3000);
         return;
