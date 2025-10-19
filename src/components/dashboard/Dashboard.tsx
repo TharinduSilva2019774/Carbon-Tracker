@@ -11,7 +11,7 @@ import FootprintChart from "@/components/charts/FootprintChart";
 import ComparisonSection from "@/components/dashboard/ComparisonSection";
 import ShareButton from "@/components/ui/ShareButton";
 import { getUserFootprints } from "@/lib/firebase/firestore";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import { deleteActivitys } from "@/lib/firebase/firestore";
 import { exportToCSV, ActivityHistoryEntry } from "@/utils/exportCSV";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
@@ -244,6 +244,7 @@ export default function Dashboard({
   const handleCancelDelete = () => {
     setConfirmOpen(false);
     setToDeleteEntry(null);
+  }
   // Handle CSV export
   const handleExportCSV = () => {
     const result = exportToCSV(activityHistory as ActivityHistoryEntry[]);
@@ -446,7 +447,7 @@ export default function Dashboard({
                   </div>
                 </div>
               ))}
-              <ConfirmDialog
+              <DeleteConfirmDialog
                 open={confirmOpen}
                 title="Delete activity"
                 message="Delete this activity? This action cannot be undone."
