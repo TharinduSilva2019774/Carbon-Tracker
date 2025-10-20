@@ -186,7 +186,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
       icon: '📱',
     },
   ];
-
+  const hasActivity = Object.values(activities).some((v) => v > 0);
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-lg p-8">
@@ -297,7 +297,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
           <div className="flex justify-center pt-6">
             <button
               type="submit"
-              disabled={isSubmitting || Object.keys(errors).length > 0}
+              disabled={isSubmitting || Object.values(errors).some((msg) => msg && msg.trim() !== '') || !hasActivity}
               className="px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
             >
               {isSubmitting ? (
