@@ -236,7 +236,8 @@ export default function AppLayout() {
       console.log("Setting goal:", targetReduction);
 
       // For now, just show success
-      alert(`Goal set! Target: ${targetReduction}% reduction`);
+      setSuccessToast(`Goal set! Target: ${targetReduction}% reduction`);
+      setTimeout(() => setSuccessToast(null), 3000);
     } catch (error) {
       console.error("Error setting goal:", error);
       throw error;
