@@ -15,6 +15,7 @@ import { saveCarbonFootprint, saveActivity } from "@/lib/firebase/firestore";
 import { ShortcutsModal } from "../ui/ShortcutsModal";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import QuickActionsFAB from "@/components/ui/QuickActionsFAB";
+import Footer from "@/components/layout/Footer";
 
 type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact"; 
@@ -406,6 +407,9 @@ export default function AppLayout() {
       >
         ⌨️
       </button>
+
+      
+      <Footer />
     </div>
   );
 }
