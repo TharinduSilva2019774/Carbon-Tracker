@@ -45,29 +45,13 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
   };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    let hasActivity = false;
-
-    formFields.forEach(field => {
-      const value = activities[field.key];
-      if (value > 0) {
-        hasActivity = true;
-      }
-      // Check individual field errors if touched
-      if (touched[field.key]) {
-        const error = validateField(field.key, value);
-        if (error) {
-          newErrors[field.key] = error;
-        }
-      }
-    });
-
+    const hasActivity = formFields.some(field => activities[field.key] > 0);
     if (!hasActivity) {
-      newErrors.form = 'Please select at least one activity';
+      setErrors({ form: 'Please select at least one activity' });
+      return false;
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors({});
+    return true;
   };
 
   const handleInputChange = (field: keyof ActivityInput, value: number) => {
