@@ -66,6 +66,38 @@ export const TIPS_DATABASE: Tip[] = [
     potentialSaving: 22,
     icon: '⏰'
   },
+  {
+    id: 'email-9',
+    title: 'Use short subject lines',
+    description: 'Concise subject lines reduce the amount of data processed and transmitted.',
+    category: 'emails',
+    potentialSaving: 15,
+    icon: '💡'
+  },
+  {
+    id: 'email-10',
+    title: 'Avoid Email Auto-Forwarding',
+    description: 'Reduce unnecessary email traffic by limiting auto-forwarding rules.',
+    category: 'emails',
+    potentialSaving: 20,
+    icon: '➡️'
+  },
+  {
+    id: 'email-11',
+    title: 'Enable Low Data Mode',
+    description: 'Use low data mode in your email app to reduce data usage.',
+    category: 'emails',
+    potentialSaving: 20,
+    icon: '📉'
+  },
+  {
+    id: 'email-12',
+    title: 'Communicate clearly in one email',
+    description: 'Send one concise email instead of multiple follow-ups to save energy.',
+    category: 'emails',
+    potentialSaving: 15,
+    icon: '✉️'
+  },
 
   // Streaming Tips
   {
@@ -132,6 +164,31 @@ export const TIPS_DATABASE: Tip[] = [
     potentialSaving: 15,
     icon: '⏹️'
   },
+  {
+    id: 'streaming-9',
+    title: 'Prefer Audio Streaming When Possible',
+    description: 'Audio streaming consumes significantly less energy than video streaming.',
+    category: 'streaming',
+    potentialSaving: 70,
+    icon: '🎧'
+  },
+  {
+    id: 'streaming-10',
+    title: 'Use Offline Mode',
+    description: 'Using offline mode in streaming apps reduces data usage and energy consumption.',
+    category: 'streaming',
+    potentialSaving: 40,
+    icon: '📥'
+  },
+  {
+  id: 'streaming-11',
+  title: 'Group Streaming Sessions',
+  description: 'Watch together using sync tools instead of multiple devices streaming separately.',
+  category: 'streaming',
+  potentialSaving: 50,
+  icon: '👥'
+},
+
 
   // Coding Tips
   {
@@ -197,6 +254,30 @@ export const TIPS_DATABASE: Tip[] = [
     category: 'coding',
     potentialSaving: 35,
     icon: '💻'
+  },
+  {
+    id: 'coding-9',
+    title: 'Save Important Code On GitHub',
+    description: 'Remove old or least used,but needed codes from local compilers.',
+    category: 'coding',
+    potentialSaving: 30,
+    icon: '🗃️'
+  },
+  {
+    id: 'coding-10',
+    title: 'Use only necessary extensions',
+    description: 'Delete all the extensions that are not in use as they consume extra resources.',
+    category: 'coding',
+    potentialSaving: 25,
+    icon: '🧩'
+  },
+  {
+    id: 'coding-11',
+    title: 'Turn Off Auto-Formatting or Heavy IDE Plugins When Not Needed',
+    description: 'Disabling auto-formatting and heavy plugins can reduce CPU usage during coding sessions.',
+    category: 'coding',
+    potentialSaving: 15,
+    icon: '🛠️'
   },
 
   // Video Calls Tips
@@ -264,8 +345,24 @@ export const TIPS_DATABASE: Tip[] = [
     potentialSaving: 180,
     icon: '📵'
   },
+  {
+    id: 'video-9',
+    title: 'Use natural lighting',
+    description: 'Use video calls in a well-lit atmosphere as it reduces the need for screen brightness adjustments.',
+    category: 'video_calls',
+    potentialSaving: 50,
+    icon: '💡'
+  },
+  {
+    id: 'video-10',
+    title: 'Use Shared Screens Only When Necessary',
+    description: 'Screen sharing consumes extra bandwidth and energy; only share when needed.',
+    category: 'video_calls',
+    potentialSaving: 25,
+    icon: '🖥️'
+  },
 
-  // Cloud Storage Tips
+// Cloud Storage Tips
   {
     id: 'cloud-1',
     title: 'Delete Duplicate Files',
@@ -330,6 +427,22 @@ export const TIPS_DATABASE: Tip[] = [
     potentialSaving: 55,
     icon: '🌱'
   },
+  {
+    id: 'cloud-9',
+    title:'Clear Cloud Cache Regularly',
+    description:'Clearing cached files from cloud storage apps can reduce unnecessary data usage and energy consumption.',
+    category:'cloud_storage',
+    potentialSaving:10,
+    icon:'🗑️'
+  },
+  {
+    id: 'cloud-10',
+    title: 'Set Auto-Delete for Temporary Files',
+    description: 'Configure your cloud storage to automatically delete temporary or unnecessary files after a set period.',
+    category: 'cloud_storage',
+    potentialSaving: 12,
+    icon: '⏲️'
+  },
 
   // Gaming Tips
   {
@@ -380,6 +493,38 @@ export const TIPS_DATABASE: Tip[] = [
     potentialSaving: 25,
     icon: '🎮'
   },
+  {
+    id: 'gaming-7',
+    title: 'Uninstall Unused Games',
+    description: 'Free up storage and reduce background processes by removing games you no longer play.',
+    category: 'gaming',
+    potentialSaving: 30,
+    icon: '🗑️'
+  },
+  {
+    id: 'gaming-8',
+    title: 'Close Launchers When Not Playing',
+    description: 'Quit game launchers (e.g., Steam, Epic) when not in use to save resources.',
+    category: 'gaming',
+    potentialSaving: 20,  
+    icon: '🚪'
+  },
+  {
+    id: 'gaming-9',
+    title:'Reduce Game Sound Levels',
+    description:'Lowering in-game sound levels can reduce overall system power consumption.',
+    category:'gaming',
+    potentialSaving:15,
+    icon:'🔊'
+  },
+  {
+    id: 'gaming-10',
+    title: 'Reduce Frame Rate',
+    description: 'Limit the frame rate to a reasonable level to decrease GPU workload.',
+    category: 'gaming',
+    potentialSaving: 40,
+    icon: '🎮'
+  },
 
   // Social Media Tips
   {
@@ -413,6 +558,22 @@ export const TIPS_DATABASE: Tip[] = [
     category: 'social_media',
     potentialSaving: 30,
     icon: '📱',
+  },
+  {
+    id: 'social-5',
+    title: 'Limit Social Media Accounts',
+    description: 'Reduce the number of social media accounts by deleting accounts that are least active.',
+    category: 'social_media',
+    potentialSaving: 15,
+    icon: '📱'
+  },
+  {
+    id: 'social-6',
+    title: 'Batch Check Notifications',
+    description: 'Check social media notifications at set times instead of constantly.',
+    category: 'social_media',
+    potentialSaving: 25,
+    icon: '⏰'
   }
 ];
 
