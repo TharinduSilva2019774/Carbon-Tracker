@@ -28,25 +28,25 @@ function TipCard({ tip, onApply }: TipCardProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start space-x-4">
-        <div className="text-3xl flex-shrink-0">{tip.icon}</div>
-        <div className="flex-1">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-start space-x-3">
+        <div className="text-2xl flex-shrink-0">{tip.icon}</div>
+        <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
-            <h3 className="font-semibold text-gray-900 text-lg">{tip.title}</h3>
-            <span className="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
+            <h3 className="font-semibold text-gray-900 text-base leading-tight">{tip.title}</h3>
+            <span className="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full whitespace-nowrap ml-2">
               -{formatCO2Amount(tip.potentialSaving)}
             </span>
           </div>
-          <p className="text-gray-600 mb-4 leading-relaxed">{tip.description}</p>
+          <p className="text-gray-600 text-sm mb-3 leading-relaxed">{tip.description}</p>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
               {ACTIVITY_LABELS[tip.category]}
             </span>
             <button
               onClick={handleApply}
               disabled={applied}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors text-sm ${
                 applied
                   ? 'bg-green-100 text-green-700 cursor-not-allowed'
                   : 'bg-green-600 text-white hover:bg-green-700'
@@ -119,30 +119,30 @@ export default function TipsPanel({ userFootprint, className = '' }: TipsPanelPr
   const totalPotentialSaving = tips.reduce((sum, tip) => sum + tip.potentialSaving, 0);
 
   return (
-    <div className={`bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-8 ${className}`}>
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+    <div className={`bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 ${className}`}>
+      {/* Header - Made more compact */}
+      <div className="text-center mb-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-1">
           💡 Eco-Friendly Tips
         </h2>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 text-sm mb-2">
           Reduce your digital carbon footprint with these actionable tips
         </p>
         {totalPotentialSaving > 0 && (
-          <p className="text-green-700 font-medium">
+          <p className="text-green-700 font-medium text-sm">
             Potential savings: {formatCO2Amount(totalPotentialSaving)} CO₂ per day
           </p>
         )}
       </div>
 
-      {/* Category Filter */}
-      <div className="mb-8">
-        <div className="flex flex-wrap gap-2 justify-center">
+      {/* Category Filter - More compact */}
+      <div className="mb-4">
+        <div className="flex flex-wrap gap-1.5 justify-center">
           {categories.map(category => (
             <button
               key={category.value}
               onClick={() => setSelectedCategory(category.value)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 selectedCategory === category.value
                   ? 'bg-green-600 text-white'
                   : 'bg-white text-gray-700 hover:bg-green-50 border border-gray-200'
@@ -155,9 +155,9 @@ export default function TipsPanel({ userFootprint, className = '' }: TipsPanelPr
         </div>
       </div>
 
-      {/* Tips Grid */}
+      {/* Tips Grid - Reduced gap */}
       {tips.length > 0 ? (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-3">
           {tips.map(tip => (
             <TipCard
               key={tip.id}
@@ -167,18 +167,18 @@ export default function TipsPanel({ userFootprint, className = '' }: TipsPanelPr
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <span className="text-6xl mb-4 block">🔍</span>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No tips found</h3>
-          <p className="text-gray-600">Try selecting a different category or check back later.</p>
+        <div className="text-center py-8">
+          <span className="text-4xl mb-2 block">🔍</span>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">No tips found</h3>
+          <p className="text-gray-600 text-sm">Try selecting a different category.</p>
         </div>
       )}
 
-      {/* Applied Tips Summary */}
+      {/* Applied Tips Summary - More compact */}
       {appliedTips.length > 0 && (
-        <div className="mt-8 bg-white rounded-xl p-6">
-          <h3 className="font-semibold text-gray-900 mb-2">🎉 Great progress!</h3>
-          <p className="text-gray-600">
+        <div className="mt-4 bg-white rounded-xl p-3">
+          <h3 className="font-semibold text-gray-900 text-sm mb-1">🎉 Great progress!</h3>
+          <p className="text-gray-600 text-xs">
             You've applied {appliedTips.length} tip{appliedTips.length !== 1 ? 's' : ''} today. 
             Keep up the sustainable habits!
           </p>
@@ -186,4 +186,4 @@ export default function TipsPanel({ userFootprint, className = '' }: TipsPanelPr
       )}
     </div>
   );
-}
+}   

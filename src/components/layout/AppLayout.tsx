@@ -15,6 +15,7 @@ import { saveCarbonFootprint, saveActivity } from "@/lib/firebase/firestore";
 import { ShortcutsModal } from "../ui/ShortcutsModal";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import QuickActionsFAB from "@/components/ui/QuickActionsFAB";
+import Footer from "@/components/layout/Footer";
 
 type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact"; 
@@ -236,7 +237,8 @@ export default function AppLayout() {
       console.log("Setting goal:", targetReduction);
 
       // For now, just show success
-      alert(`Goal set! Target: ${targetReduction}% reduction`);
+      setSuccessToast(`Goal set! Target: ${targetReduction}% reduction`);
+      setTimeout(() => setSuccessToast(null), 3000);
     } catch (error) {
       console.error("Error setting goal:", error);
       throw error;
@@ -258,7 +260,7 @@ export default function AppLayout() {
 
       case "activities":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
               <ActivityForm
                 onSubmit={handleActivitySubmit}
@@ -270,7 +272,7 @@ export default function AppLayout() {
 
       case "tips":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
+          <div className=" bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <TipsPanel
                 userFootprint={{
@@ -289,7 +291,7 @@ export default function AppLayout() {
 
       case "goals":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+          <div className=" min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
               <GoalsPanel
                 currentWeekCO2={2500}
@@ -302,7 +304,7 @@ export default function AppLayout() {
 
       case "badges":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
+          <div className=" min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <BadgeDisplay
                 userBadges={[
@@ -401,6 +403,16 @@ export default function AppLayout() {
       <footer className="fixed bottom-0 left-0 w-full bg-gray-100 p-2 text-center text-xs text-gray-500">
         Press ? for shortcuts
       </footer>
+      <button
+        onClick={() => setShowShortcutsModal(true)}
+        className="fixed bottom-4 right-4 bg-[#489d63] text-white p-3 rounded-full shadow-lg hover:bg-[#e3fdee] transition cursor-pointer z-30"
+        aria-label="Keyboard shortcuts"
+      >
+        ⌨️
+      </button>
+
+      
+      <Footer />
     </div>
   );
 }
