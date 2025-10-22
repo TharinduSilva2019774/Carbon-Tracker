@@ -15,6 +15,8 @@ export const ShortcutsModal = ({ isOpen, onClose }: ShortcutsModalProps) => {
     { key: "Ctrl/Cmd + 3", action: "Tips" },
     { key: "Ctrl/Cmd + 4", action: "Goals" },
     { key: "Ctrl/Cmd + 5", action: "Badges" },
+    { key: "?", action: "Show help" },
+    { key: "Esc", action: "Close modals" },
   ];
 
   return (
@@ -45,8 +47,8 @@ export const ShortcutsModal = ({ isOpen, onClose }: ShortcutsModalProps) => {
               key={index}
               className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0"
             >
-              <span className="text-gray-700">{shortcut.action}</span>
-              <kbd className="px-3 py-1 bg-gray-100 border border-gray-300 rounded text-sm font-mono">
+              <span className="text-black">{shortcut.action}</span>
+              <kbd className="px-3 py-1 bg-gray-100 border border-gray-300 rounded text-sm font-mono text-black">
                 {shortcut.key}
               </kbd>
             </div>
