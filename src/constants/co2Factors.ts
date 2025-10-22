@@ -1,4 +1,4 @@
-import { ActivityType } from '@/types';
+import { ActivityType, ACTIVITY_TYPES } from '@/types';
 
 // CO2 emissions in grams per unit
 export const CO2_FACTORS: Record<ActivityType, number> = {
@@ -35,24 +35,24 @@ export const EQUIVALENTS = [
   },
 ];
 
-// Activity labels for UI
+// Activity labels for UI - derived from ACTIVITY_TYPES
 export const ACTIVITY_LABELS: Record<ActivityType, string> = {
-  emails: 'Emails Sent',
-  streaming: 'Video Streaming',
-  coding: 'Coding/Development',
-  video_calls: 'Video Calls',
-  cloud_storage: 'Cloud Storage',
-  gaming: 'Gaming',
-  social_media: 'Social Media',
+  emails: ACTIVITY_TYPES.emails.label,
+  streaming: ACTIVITY_TYPES.streaming.label,
+  coding: ACTIVITY_TYPES.coding.label,
+  video_calls: ACTIVITY_TYPES.video_calls.label,
+  cloud_storage: ACTIVITY_TYPES.cloud_storage.label,
+  gaming: ACTIVITY_TYPES.gaming.label,
+  social_media: ACTIVITY_TYPES.social_media.label,
 };
 
-// Activity descriptions
+// Activity descriptions - derived from ACTIVITY_TYPES (concise, under 10 words each)
 export const ACTIVITY_DESCRIPTIONS: Record<ActivityType, string> = {
-  emails: 'Number of emails sent today',
-  streaming: 'Hours spent watching videos (Netflix, YouTube, etc.)',
-  coding: 'Hours spent coding or using development tools',
-  video_calls: 'Hours in video meetings (Zoom, Meet, Teams)',
-  cloud_storage: 'Gigabytes of cloud storage used',
-  gaming: 'Hours spent gaming online',
-  social_media: 'Hours browsing social media platforms',
+  emails: ACTIVITY_TYPES.emails.description,
+  streaming: ACTIVITY_TYPES.streaming.description,
+  coding: ACTIVITY_TYPES.coding.description,
+  video_calls: ACTIVITY_TYPES.video_calls.description,
+  cloud_storage: ACTIVITY_TYPES.cloud_storage.description,
+  gaming: ACTIVITY_TYPES.gaming.description,
+  social_media: ACTIVITY_TYPES.social_media.description,
 };
