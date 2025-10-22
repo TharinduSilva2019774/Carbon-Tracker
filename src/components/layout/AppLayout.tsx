@@ -259,7 +259,7 @@ export default function AppLayout() {
 
       case "activities":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
               <ActivityForm
                 onSubmit={handleActivitySubmit}
@@ -271,7 +271,7 @@ export default function AppLayout() {
 
       case "tips":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
+          <div className=" bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <TipsPanel
                 userFootprint={{
@@ -290,7 +290,7 @@ export default function AppLayout() {
 
       case "goals":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+          <div className=" min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
               <GoalsPanel
                 currentWeekCO2={2500}
@@ -303,7 +303,7 @@ export default function AppLayout() {
 
       case "badges":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
+          <div className=" min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <BadgeDisplay
                 userBadges={[

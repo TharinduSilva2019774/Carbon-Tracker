@@ -183,7 +183,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
   ];
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 ">
       <div className="bg-white rounded-xl shadow-lg p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -342,7 +342,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
           height: 20px;
           width: 20px;
           border-radius: 50%;
-          background: #059669;
+          background: #ffffff;
           cursor: pointer;
           border: 2px solid #ffffff;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
