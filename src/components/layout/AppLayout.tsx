@@ -304,7 +304,7 @@ export default function AppLayout() {
 
       case "badges":
         return (
-          <div className=" min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
+          <div className="  bg-gradient-to-br from-purple-50 to-pink-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <BadgeDisplay
                 userBadges={[
