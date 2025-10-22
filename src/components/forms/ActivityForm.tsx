@@ -46,28 +46,13 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
   };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    let hasActivity = false;
-
-    formFields.forEach(field => {
-      const value = activities[field.key];
-      if (value > 0) {
-        hasActivity = true;
-      }
-      if (touched[field.key]) {
-        const error = validateField(field.key, value);
-        if (error) {
-          newErrors[field.key] = error;
-        }
-      }
-    });
-
+    const hasActivity = formFields.some(field => activities[field.key] > 0);
     if (!hasActivity) {
-      newErrors.form = 'Please select at least one activity';
+      setErrors({ form: 'Please select at least one activity' });
+      return false;
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors({});
+    return true;
   };
 
   const handleInputChange = (field: keyof ActivityInput, value: number) => {
@@ -181,7 +166,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
       icon: '📱',
     },
   ];
-
+  const hasActivity = Object.values(activities).some((v) => v > 0);
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-lg p-8">
@@ -307,7 +292,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
           <div className="flex justify-center pt-6">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || Object.values(errors).some((msg) => msg && msg.trim() !== '') || !hasActivity}
               className="px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
             >
               {isSubmitting ? (
