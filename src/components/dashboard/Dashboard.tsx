@@ -13,6 +13,7 @@ import ShareButton from "@/components/ui/ShareButton";
 import { getUserFootprints } from "@/lib/firebase/firestore";
 import { exportToCSV, ActivityHistoryEntry } from "@/utils/exportCSV";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import Spinner from "@/components/ui/Spinner";
 
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact";
 
@@ -231,8 +232,8 @@ export default function Dashboard({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+          <Spinner size="md" variant="primary" className="mx-auto mb-4" aria-label="Loading" />
+          {/* <p className="text-gray-600">Loading your dashboard...</p> */}
         </div>
       </div>
     );
