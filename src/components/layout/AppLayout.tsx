@@ -17,6 +17,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import QuickActionsFAB from "@/components/ui/QuickActionsFAB";
 import Footer from "@/components/layout/Footer";
 
+
 type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact"; 
 
@@ -35,16 +36,29 @@ export default function AppLayout() {
   const [sortPreference, setSortPreference] = useState<SortOption>("newest");
 
   //keyboard hook
-  useKeyboardShortcuts({ setCurrentPage, setShowShortcutsModal });
+useKeyboardShortcuts({setCurrentPage});
 
-  useEffect(() => {
-    const savedSort = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedSort && ['newest', 'oldest', 'highest_impact', 'lowest_impact'].includes(savedSort)) {
-      setSortPreference(savedSort as SortOption);
-    }
-    // Load today's footprint when component mounts
-    loadTodayFootprint();
-  }, [user]);
+// Dynamic page title based on current page
+useEffect(() => {
+  const pageTitles: Record<PageType, string> = {
+    dashboard: "Dashboard | Carbon Tracker",
+    activities: "Log Activities | Carbon Tracker",
+    tips: "Eco Tips | Carbon Tracker",
+    goals: "Goals | Carbon Tracker",
+    badges: "Achievements | Carbon Tracker",
+  };
+
+  document.title = pageTitles[currentPage];
+}, [currentPage]);
+
+useEffect(() => {
+  const savedSort = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (savedSort && ['newest', 'oldest', 'highest_impact', 'lowest_impact'].includes(savedSort)) {
+    setSortPreference(savedSort as SortOption);
+  }
+  // Load today's footprint when component mounts
+  loadTodayFootprint();
+}, [user]);
 
   const handleSortChange = (newSort: SortOption) => {
     setSortPreference(newSort);
