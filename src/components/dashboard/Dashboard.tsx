@@ -11,10 +11,10 @@ import FootprintChart from "@/components/charts/FootprintChart";
 import ComparisonSection from "@/components/dashboard/ComparisonSection";
 import ShareButton from "@/components/ui/ShareButton";
 import { getUserFootprints } from "@/lib/firebase/firestore";
-import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import { deleteActivitys } from "@/lib/firebase/firestore";
 import { exportToCSV, ActivityHistoryEntry } from "@/utils/exportCSV";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import ConfirmDialog from "../ui/ConfirmDialog";
 
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact";
 
@@ -447,12 +447,11 @@ export default function Dashboard({
                   </div>
                 </div>
               ))}
-              <DeleteConfirmDialog
-                open={confirmOpen}
+              <ConfirmDialog
+                isOpen={confirmOpen}
                 title="Delete activity"
                 message="Delete this activity? This action cannot be undone."
-                confirmLabel="Delete"
-                cancelLabel="Cancel"
+                confirmText="Delete"
                 onConfirm={handleConfirmDelete}
                 onCancel={handleCancelDelete}
               />
