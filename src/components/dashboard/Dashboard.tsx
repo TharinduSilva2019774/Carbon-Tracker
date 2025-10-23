@@ -41,12 +41,13 @@ function StatCard({ title, value, change, icon, color }: StatCardProps) {
           <p className={`text-2xl font-bold ${color}`}>{value}</p>
           {change !== undefined && (
             <p
-              className={`text-sm mt-1 ${change > 0
+              className={`text-sm mt-1 ${
+                change > 0
                   ? "text-red-600"
                   : change < 0
                     ? "text-green-600"
                     : "text-gray-600"
-                }`}
+              }`}
             >
               {change > 0 ? "↗" : change < 0 ? "↘" : "→"}{" "}
               {Math.abs(change).toFixed(1)}% from last week
@@ -105,7 +106,7 @@ export default function Dashboard({
     show: boolean;
     success: boolean;
     message: string;
-  }>({ show: false, success: false, message: '' });
+  }>({ show: false, success: false, message: "" });
 
   useEffect(() => {
     // Use prop data if available, otherwise fetch from database
@@ -219,12 +220,12 @@ export default function Dashboard({
     setExportStatus({
       show: true,
       success: result.success,
-      message: result.message
+      message: result.message,
     });
-    
+
     // Hide the message after 4 seconds
     setTimeout(() => {
-      setExportStatus(prev => ({ ...prev, show: false }));
+      setExportStatus((prev) => ({ ...prev, show: false }));
     }, 4000);
   };
 
@@ -232,7 +233,12 @@ export default function Dashboard({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Spinner size="md" variant="primary" className="mx-auto mb-4" aria-label="Loading" />
+          <Spinner
+            size="md"
+            variant="primary"
+            className="mx-auto mb-4"
+            aria-label="Loading"
+          />
           {/* <p className="text-gray-600">Loading your dashboard...</p> */}
         </div>
       </div>
@@ -250,7 +256,10 @@ export default function Dashboard({
           <p className="text-gray-600 mb-6">
             Start tracking your digital activities to see your carbon footprint.
           </p>
-          <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+          <button
+            onClick={() => onNavigate?.("activities")}
+            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
             Add Your First Activity
           </button>
         </div>
@@ -345,16 +354,17 @@ export default function Dashboard({
           </div>
         )}
 
-        {/* Recent Activities / Activity History (UPDATED SECTION) */}
-        {activityHistory.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">
-                Activity History
-              </h3>
-              {/* NEW: Sort Dropdown UI */}
+        {/* Recent Activities / Activity History */}
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900">
+              Activity History
+            </h3>
+            {activityHistory.length > 0 && (
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Sort by:
+                </span>
                 <div className="relative">
                   <select
                     value={sortPreference}
@@ -369,19 +379,32 @@ export default function Dashboard({
                   </select>
                   {/* Custom chevron/sort icon */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h18M3 8h18m-6 4h6m-6 4h6M3 16h6m-6 4h6"></path></svg>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 4h18M3 8h18m-6 4h6m-6 4h6M3 16h6m-6 4h6"
+                      ></path>
+                    </svg>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
+          </div>
 
-            {/* Sorted Activity List */}
+          {activityHistory.length > 0 ? (
             <div className="space-y-4">
               {activityHistory.map((entry: any) => (
                 <div key={entry.id} className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-600">
-                      {/* Using toLocaleString for better date/time display */}
                       {entry.timestamp.toLocaleString()}
                     </span>
                     <span className="font-bold text-green-600">
@@ -404,8 +427,26 @@ export default function Dashboard({
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            // EMPTY STATE FOR ACTIVITY HISTORY
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📊</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No activities yet!
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Add your first activity above to start tracking your carbon
+                footprint
+              </p>
+              <button
+                onClick={() => onNavigate?.("activities")}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-md hover:shadow-lg"
+              >
+                📝 Add Your First Activity
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Quick Actions */}
         <div className="bg-white rounded-xl shadow-lg p-8">
@@ -451,12 +492,12 @@ export default function Dashboard({
           <div
             className={`px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 ${
               exportStatus.success
-                ? 'bg-green-500 text-white'
-                : 'bg-red-500 text-white'
+                ? "bg-green-500 text-white"
+                : "bg-red-500 text-white"
             }`}
           >
             <span className="text-lg">
-              {exportStatus.success ? '✅' : '❌'}
+              {exportStatus.success ? "✅" : "❌"}
             </span>
             <span className="font-medium">{exportStatus.message}</span>
           </div>
