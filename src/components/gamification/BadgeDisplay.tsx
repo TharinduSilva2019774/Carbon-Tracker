@@ -191,14 +191,19 @@ export default function BadgeDisplay({ userBadges, showAll = false, className = 
           ))}
         </div>
       ) : (
+        // ENHANCED EMPTY STATE
         <div className="text-center py-12">
-          <div className="text-6xl mb-4">🎯</div>
+          <div className="text-6xl mb-4">🏆</div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {selectedCategory === 'all' ? 'No badges yet' : 'No badges in this category'}
+            {selectedCategory === 'all' ? 'No badges yet!' : 'No badges in this category'}
           </h3>
-          <p className="text-gray-600">
-            Keep tracking your activities to earn your first badge!
+          <p className="text-gray-600 mb-6">
+            Complete actions to unlock badges and earn achievements!
           </p>
+          <div className="inline-flex items-center space-x-2 text-sm text-gray-500">
+            <span>💡</span>
+            <span>Keep tracking your activities to earn your first badge</span>
+          </div>
         </div>
       )}
 

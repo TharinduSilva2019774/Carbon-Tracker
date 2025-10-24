@@ -202,6 +202,31 @@ export default function FootprintChart({
 
   const ChartComponent = type === "pie" ? Pie : type === "line" ? Line : Bar;
 
+  // Check if data is empty
+  const hasData = (() => {
+    if ("labels" in data) {
+      return (
+        data.values && data.values.length > 0 && data.values.some((v) => v > 0)
+      );
+    }
+    return Object.values(data).some((v) => v > 0);
+  })();
+
+  // If no data, show empty state
+  if (!hasData) {
+    return (
+      <div className={`bg-white rounded-xl shadow-lg p-6 ${className}`}>
+        <div className="h-80 flex flex-col items-center justify-center">
+          <div className="text-6xl mb-4">📈</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+          <p className="text-gray-600 text-center max-w-xs">
+            Add activities to see your carbon footprint trends
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`bg-white rounded-xl shadow-lg p-6 ${className}`}>
       <div className="h-80">

@@ -4,10 +4,12 @@ type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
 
 interface KeyboardShortcutsProps {
   setCurrentPage: React.Dispatch<React.SetStateAction<PageType>>;
+  setShowShortcutsModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const useKeyboardShortcuts = ({
   setCurrentPage,
+  setShowShortcutsModal,
 }: KeyboardShortcutsProps) => {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -21,8 +23,20 @@ export const useKeyboardShortcuts = ({
         return;
       }
 
+      if (e.key === "?") {
+        e.preventDefault();
+        setShowShortcutsModal(true);
+        return;
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setShowShortcutsModal(false);
+        return;
+      }
+
       const isModifierPressed = e.ctrlKey || e.metaKey;
-      if (!isModifierPressed && e.key !== "Escape") return;
+      if (!isModifierPressed) return;
 
       switch (e.key) {
         case "1":
@@ -45,9 +59,6 @@ export const useKeyboardShortcuts = ({
           e.preventDefault();
           setCurrentPage("badges");
           break;
-        case "Escape":
-          e.preventDefault();
-          break;
         default:
           break;
       }
@@ -58,5 +69,5 @@ export const useKeyboardShortcuts = ({
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [setCurrentPage]);
+  }, [setCurrentPage, setShowShortcutsModal]);
 };

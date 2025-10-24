@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -134,6 +135,19 @@ export default function GoalsPanel({ currentGoal, currentWeekCO2, lastWeekCO2, o
         <h2 className="text-2xl font-bold text-gray-900 mb-2">🎯 Weekly Goals</h2>
         <p className="text-gray-600">{getMotivationalMessage()}</p>
       </div>
+
+      {/* Empty State - No Goal Set */}
+      {!currentGoal && (
+        <div className="bg-white rounded-lg p-6 mb-6 text-center">
+          <div className="text-5xl mb-3">🎯</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Set your first carbon reduction goal!
+          </h3>
+          <p className="text-gray-600 text-sm">
+            Choose a weekly target below to start your journey towards a lower carbon footprint
+          </p>
+        </div>
+      )}
 
       {/* Current Goal Progress */}
       {currentGoal && (

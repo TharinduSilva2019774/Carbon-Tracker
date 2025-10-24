@@ -13,7 +13,7 @@ interface ActivityFormProps {
       breakdown: Record<string, number>;
       equivalents: Array<{ description: string; value: number; unit: string }>;
     },
-    customToastMessage?: string // <-- Add this optional property
+    customToastMessage?: string
   ) => void;
   initialValues?: Partial<ActivityInput>;
 }
@@ -32,47 +32,31 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [hoveredField, setHoveredField] = useState<string | null>(null);
 
   const validateField = (field: keyof ActivityInput, value: number) => {
-    if (value <= 0) {
+    if (touched[field] && value < 0) {
       if (field.includes('Hours')) {
-        return 'Duration must be greater than 0';
+        return 'Duration cannot be negative';
       } else if (field === 'emails' || field === 'cloudStorageGB') {
-        return 'Quantity must be greater than 0';
+        return 'Quantity cannot be negative';
       }
     }
     return '';
   };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    let hasActivity = false;
-
-    formFields.forEach(field => {
-      const value = activities[field.key];
-      if (value > 0) {
-        hasActivity = true;
-      }
-      // Check individual field errors if touched
-      if (touched[field.key]) {
-        const error = validateField(field.key, value);
-        if (error) {
-          newErrors[field.key] = error;
-        }
-      }
-    });
-
+    const hasActivity = formFields.some(field => activities[field.key] > 0);
     if (!hasActivity) {
-      newErrors.form = 'Please select at least one activity';
+      setErrors({ form: 'Please select at least one activity' });
+      return false;
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors({});
+    return true;
   };
 
   const handleInputChange = (field: keyof ActivityInput, value: number) => {
     setActivities(prev => ({ ...prev, [field]: Math.max(0, value) }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -86,27 +70,23 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Mark all fields as touched
+
     const allTouched: Record<string, boolean> = {};
     formFields.forEach(field => {
       allTouched[field.key] = true;
     });
     setTouched(allTouched);
-    
+
     if (!validateForm()) {
-      return; // Don't submit if invalid
+      return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
       const result = calculateCarbonFootprint(activities);
-      
-      // Start submission immediately - don't wait for completion
       onSubmit(activities, result);
-      
-      // Reset form after a short delay
+
       setTimeout(() => {
         setActivities({
           emails: 0,
@@ -121,7 +101,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
         setTouched({});
         setIsSubmitting(false);
       }, 500);
-      
+
     } catch (error) {
       console.error('Error submitting activities:', error);
       setIsSubmitting(false);
@@ -186,9 +166,9 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
       icon: '📱',
     },
   ];
-
+  const hasActivity = Object.values(activities).some((v) => v > 0);
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 ">
       <div className="bg-white rounded-xl shadow-lg p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -202,15 +182,32 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             {formFields.map((field) => (
-              <div key={field.key} className="space-y-3">
+              <div key={field.key} className="space-y-3 relative">
                 <div className="flex items-center space-x-2">
                   <span className="text-2xl">{field.icon}</span>
                   <label className="text-lg font-medium text-gray-900">
                     {field.label}
                   </label>
+                  {/* Info Icon with Tooltip */}
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setHoveredField(field.key)}
+                    onMouseLeave={() => setHoveredField(null)}
+                  >
+                    <span className="inline-flex items-center justify-center w-5 h-5 text-xs text-gray-500 hover:text-blue-600 cursor-help transition-colors">
+                      ℹ️
+                    </span>
+                    {/* Tooltip */}
+                    {hoveredField === field.key && (
+                      <div className="absolute z-10 left-0 top-full mt-1 w-48 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg">
+                        {field.description}
+                        <div className="absolute -top-1 left-2 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                
-                <p className="text-sm text-gray-600 ml-10">
+
+                <p className="text-sm text-gray-500 ml-10">
                   {field.description}
                 </p>
 
@@ -224,9 +221,8 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
                       value={activities[field.key]}
                       onChange={(e) => handleInputChange(field.key, parseFloat(e.target.value))}
                       onBlur={() => handleBlur(field.key)}
-                      className={`flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider ${
-                        errors[field.key] ? 'border border-red-500' : ''
-                      }`}
+                      className={`flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider ${errors[field.key] ? 'border border-red-500' : ''
+                        }`}
                       aria-invalid={!!errors[field.key]}
                       aria-describedby={`${field.key}-error ${field.key}-hint`}
                     />
@@ -239,22 +235,21 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
                         value={activities[field.key]}
                         onChange={(e) => handleInputChange(field.key, parseFloat(e.target.value) || 0)}
                         onBlur={() => handleBlur(field.key)}
-                        className={`w-20 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                          errors[field.key] 
-                            ? 'border-red-500 focus:ring-red-500' 
+                        className={`w-20 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${errors[field.key]
+                            ? 'border-red-500 focus:ring-red-500'
                             : 'border-gray-300 focus:ring-green-500'
-                        }`}
+                          }`}
                         aria-invalid={!!errors[field.key]}
                         aria-describedby={`${field.key}-error ${field.key}-hint`}
                       />
                       <span className="text-sm text-gray-500 min-w-fit">
-                        {field.key.includes('Hours') ? 'hrs' : 
-                         field.key.includes('GB') ? 'GB' : 
-                         field.key === 'emails' ? 'emails' : 'units'}
+                        {field.key.includes('Hours') ? 'hrs' :
+                          field.key.includes('GB') ? 'GB' :
+                            field.key === 'emails' ? 'emails' : 'units'}
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Progress bar */}
                   <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
                     <div
@@ -265,13 +260,13 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
 
                   {/* Hint */}
                   <p id={`${field.key}-hint`} className="text-xs text-gray-500 mt-1">
-                    {field.key.includes('Hours') 
-                      ? `Enter duration in ${field.key.includes('streaming') || field.key.includes('gaming') ? 'hours' : 'hours'} (e.g., 2.5)` 
-                      : field.key === 'emails' 
-                      ? 'Enter number of emails sent today' 
-                      : field.key === 'cloudStorageGB' 
-                      ? 'Enter storage used in GB' 
-                      : 'Enter quantity'}
+                    {field.key.includes('Hours')
+                      ? `Enter duration in hours (e.g., 2.5)`
+                      : field.key === 'emails'
+                        ? 'Enter number of emails sent today'
+                        : field.key === 'cloudStorageGB'
+                          ? 'Enter storage used in GB'
+                          : 'Enter quantity'}
                   </p>
 
                   {/* Error message */}
@@ -297,7 +292,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
           <div className="flex justify-center pt-6">
             <button
               type="submit"
-              disabled={isSubmitting || Object.keys(errors).length > 0}
+              disabled={isSubmitting || Object.values(errors).some((msg) => msg && msg.trim() !== '') || !hasActivity}
               className="px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
             >
               {isSubmitting ? (
@@ -332,7 +327,7 @@ export default function ActivityForm({ onSubmit, initialValues }: ActivityFormPr
           height: 20px;
           width: 20px;
           border-radius: 50%;
-          background: #059669;
+          background: #ffffff;
           cursor: pointer;
           border: 2px solid #ffffff;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);

@@ -1,3 +1,5 @@
+import { BadgeRequirement } from "@/constants/badges";
+
 export interface Activity {
   id: string;
   type: ActivityType;
@@ -6,14 +8,58 @@ export interface Activity {
   userId: string;
 }
 
-export type ActivityType = 
-  | 'emails'
-  | 'streaming'
-  | 'coding'
-  | 'video_calls'
-  | 'cloud_storage'
-  | 'gaming'
-  | 'social_media';
+export type ActivityType =
+  | "emails"
+  | "streaming"
+  | "coding"
+  | "video_calls"
+  | "cloud_storage"
+  | "gaming"
+  | "social_media";
+
+export interface ActivityTypeInfo {
+  id: ActivityType;
+  label: string;
+  description: string;
+}
+
+export const ACTIVITY_TYPES: Record<ActivityType, ActivityTypeInfo> = {
+  emails: {
+    id: "emails",
+    label: "Email",
+    description: "Sending and receiving emails"
+  },
+  video_calls: {
+    id: "video_calls",
+    label: "Video Calls",
+    description: "Zoom, Teams, Google Meet calls"
+  },
+  streaming: {
+    id: "streaming",
+    label: "Streaming",
+    description: "Netflix, YouTube, Spotify"
+  },
+  coding: {
+    id: "coding",
+    label: "Coding",
+    description: "Using IDEs, compiling code"
+  },
+  cloud_storage: {
+    id: "cloud_storage",
+    label: "Cloud Storage",
+    description: "Google Drive, Dropbox, iCloud"
+  },
+  gaming: {
+    id: "gaming",
+    label: "Gaming",
+    description: "Online gaming and downloads"
+  },
+  social_media: {
+    id: "social_media",
+    label: "Social Media",
+    description: "Facebook, Instagram, Twitter"
+  }
+};
 
 export interface ActivityInput {
   emails: number;
@@ -42,7 +88,7 @@ export interface User {
 }
 
 export interface UserPreferences {
-  units: 'metric' | 'imperial';
+  units: "metric" | "imperial";
   notifications: boolean;
   weeklyGoal?: number;
 }
@@ -61,7 +107,7 @@ export interface Badge {
   name: string;
   description: string;
   icon: string;
-  requirement: string;
+  requirement: BadgeRequirement;
   achieved: boolean;
   achievedAt?: Date;
 }

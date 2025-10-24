@@ -15,6 +15,8 @@ import { saveCarbonFootprint, saveActivity, deleteActivitys } from "@/lib/fireba
 import { ShortcutsModal } from "../ui/ShortcutsModal";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import QuickActionsFAB from "@/components/ui/QuickActionsFAB";
+import Footer from "@/components/layout/Footer";
+
 
 type PageType = "dashboard" | "activities" | "tips" | "goals" | "badges";
 type SortOption = "newest" | "oldest" | "highest_impact" | "lowest_impact"; 
@@ -35,16 +37,29 @@ export default function AppLayout() {
   const [sortPreference, setSortPreference] = useState<SortOption>("newest");
 
   //keyboard hook
-  useKeyboardShortcuts({setCurrentPage});
+useKeyboardShortcuts({setCurrentPage});
 
-  useEffect(() => {
-    const savedSort = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedSort && ['newest', 'oldest', 'highest_impact', 'lowest_impact'].includes(savedSort)) {
-      setSortPreference(savedSort as SortOption);
-    }
-    // Load today's footprint when component mounts
-    loadTodayFootprint();
-  }, [user]);
+// Dynamic page title based on current page
+useEffect(() => {
+  const pageTitles: Record<PageType, string> = {
+    dashboard: "Dashboard | Carbon Tracker",
+    activities: "Log Activities | Carbon Tracker",
+    tips: "Eco Tips | Carbon Tracker",
+    goals: "Goals | Carbon Tracker",
+    badges: "Achievements | Carbon Tracker",
+  };
+
+  document.title = pageTitles[currentPage];
+}, [currentPage]);
+
+useEffect(() => {
+  const savedSort = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (savedSort && ['newest', 'oldest', 'highest_impact', 'lowest_impact'].includes(savedSort)) {
+    setSortPreference(savedSort as SortOption);
+  }
+  // Load today's footprint when component mounts
+  loadTodayFootprint();
+}, [user]);
 
   const handleSortChange = (newSort: SortOption) => {
     setSortPreference(newSort);
@@ -283,7 +298,8 @@ export default function AppLayout() {
       console.log("Setting goal:", targetReduction);
 
       // For now, just show success
-      alert(`Goal set! Target: ${targetReduction}% reduction`);
+      setSuccessToast(`Goal set! Target: ${targetReduction}% reduction`);
+      setTimeout(() => setSuccessToast(null), 3000);
     } catch (error) {
       console.error("Error setting goal:", error);
       throw error;
@@ -306,7 +322,7 @@ export default function AppLayout() {
 
       case "activities":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
               <ActivityForm
                 onSubmit={handleActivitySubmit}
@@ -318,7 +334,7 @@ export default function AppLayout() {
 
       case "tips":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8">
+          <div className=" bg-gradient-to-br from-green-50 to-emerald-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <TipsPanel
                 userFootprint={{
@@ -337,7 +353,7 @@ export default function AppLayout() {
 
       case "goals":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+          <div className=" min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
             <div className="max-w-4xl mx-auto px-4">
               <GoalsPanel
                 currentWeekCO2={2500}
@@ -350,7 +366,7 @@ export default function AppLayout() {
 
       case "badges":
         return (
-          <div className="lg:ml-64 min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
+          <div className="  bg-gradient-to-br from-purple-50 to-pink-100 py-8">
             <div className="max-w-6xl mx-auto px-4">
               <BadgeDisplay
                 userBadges={[
@@ -359,7 +375,10 @@ export default function AppLayout() {
                     name: "First Steps",
                     description: "Completed your first day of tracking",
                     icon: "👶",
-                    requirement: "milestone: 1",
+                    requirement: {
+                      type: "milestone",
+                      threshold: 1,
+                    },
                     achieved: true,
                     achievedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
                   },
@@ -368,7 +387,11 @@ export default function AppLayout() {
                     name: "Eco Warrior",
                     description: "Reduced weekly footprint by 25%",
                     icon: "🌿",
-                    requirement: "total_reduction: 25",
+                    requirement: {
+                      type: "total_reduction",
+                      threshold: 25,
+                      period: "weekly",
+                    },
                     achieved: true,
                     achievedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
                   },
@@ -448,6 +471,9 @@ export default function AppLayout() {
         isOpen={showShortcutsModal}
         onClose={() => setShowShortcutsModal(false)}
       />
+      <footer className="fixed bottom-0 left-0 w-full bg-gray-100 p-2 text-center text-xs text-gray-500">
+        Press ? for shortcuts
+      </footer>
       <button
         onClick={() => setShowShortcutsModal(true)}
         className="fixed bottom-4 right-4 bg-[#489d63] text-white p-3 rounded-full shadow-lg hover:bg-[#e3fdee] transition cursor-pointer z-30"
@@ -455,6 +481,9 @@ export default function AppLayout() {
       >
         ⌨️
       </button>
+
+      
+      <Footer />
     </div>
   );
 }
